@@ -1,0 +1,5 @@
+-c --cpu Cortex-M3 -D__EVAL -g -O0 --apcs=interwork --split_sections
+-I C:\Keil\ARM\RV31\INC
+-I C:\Keil\ARM\CMSIS\Include
+-DDBG_MSG
+-o .\cm3_le\rt_timer.o --depend .\cm3_le\rt_timer.d "SRC\CM\rt_Timer.c"

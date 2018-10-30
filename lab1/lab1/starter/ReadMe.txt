@@ -1,0 +1,1 @@
+Change DELAY macro in HelloWorld.c to change output of printf speed. For simulator 10 is a good speed.

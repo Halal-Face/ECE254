@@ -1,0 +1,11 @@
+Write test task specification in this file.
+
+taskXXX: task that takes all available memory boxes; highest priority and runs first
+
+task1: task that tries to take memory box after taskXXX; same priority as task 3
+
+task2: task that prints status of the tasks
+
+task3: task that tries to take memory box after taskXXX; same priority as task 1
+
+task4: task that frees one memory block when all memory blocks are filled
