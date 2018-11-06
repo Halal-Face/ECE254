@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 	int producerArray[num_p];
 	int consumerArray[num_c];
 	
-	printTime();
+	
 		
 	
 	//message queue setup. Each child process will see the same message box
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 	
 
 
-	printf("Creating Producers.\n");
+	//printf("Creating Producers.\n");
 	//create producer processes
 	for(int i = 0; i < num_p; i++ ){
 		pid = fork();
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 	}
 	
 	if(pid!=0){
-		printf("Creating Consumers.\n");
+		//printf("Creating Consumers.\n");
 		//create consumer processes
 		for(int i =0; i< num_c; i++){
 			pid = fork();
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 	}
 	
 	if(pid!=0){
-		printf("Waitin for cleanup\n");
+		
 		for(int i =0; i < (num_c); i++){
 			int tmp=0;
 			waitpid(consumerArray[i], &tmp, 0); 
@@ -132,8 +132,7 @@ int main(int argc, char *argv[])
 			exit(2);
 		}
 		
-		
-		printf("Cleaned up\n");
+		printTime();
 	}
 	
 	exit(0);
@@ -187,7 +186,7 @@ void doConsumerWork(){
 
 			int temp = sqrt(work);
 			if(temp*temp == work && work !=-1){
-				printf("CID: %d WORK: %d SQRT: %d \n", consumer_id, work, temp);
+				printf("%d,%d,%d\n", consumer_id, work, temp);
 			}
 			if(work == num){
 				exit(0);
