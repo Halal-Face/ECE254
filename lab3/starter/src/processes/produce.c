@@ -26,7 +26,7 @@ void doConsumerWork();
 
 //message queue's
 mqd_t qdes;
-char *qname = "/mailbox10";
+char *qname = "/mailbox";
 
 
 
@@ -75,15 +75,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	
-	//message queue setup for producers. Each producer process will see the number of items left to produce.
-	
-	attr.mq_maxmsg  = 1;
-	attr.mq_msgsize = sizeof(int);
-	attr.mq_flags   = 0;		/* a blocking queue  */
-	
-
-
-	//printf("Creating Producers.\n");
 	//create producer processes
 	for(int i = 0; i < num_p; i++ ){
 		pid = fork();
@@ -96,11 +87,9 @@ int main(int argc, char *argv[])
 			break;
 		}
 		producerArray[i] = pid;
-		//printf("Created Producer with PID %d and ID %d.\n", pid, i);
 	}
 	
 	if(pid!=0){
-		//printf("Creating Consumers.\n");
 		//create consumer processes
 		for(int i =0; i< num_c; i++){
 			pid = fork();
@@ -113,18 +102,15 @@ int main(int argc, char *argv[])
 				break;
 			}
 			consumerArray[i] = pid;
-			//printf("Created Consumer with PID %d and ID %d.\n", pid, i);
 		}
 	}
 	
 	if(pid!=0){
-		
+		int tmp =0;
 		for(int i =0; i < (num_c); i++){
-			int tmp=0;
 			waitpid(consumerArray[i], &tmp, 0); 
 		}
 		for(int i =0; i < (num_p); i++){
-			int tmp=0;
 			waitpid(producerArray[i], &tmp, 0); 
 		}
 		if (mq_close(qdes) == -1) {
@@ -153,15 +139,11 @@ void printTime(){
 void doProducerWork(){
 	
 	for(int i =0; i< num; i++){
-		int total_work;
 		if(i%num_p == producer_id){
-			total_work = -1;
-
 			//send your i to the queue;
 			if (mq_send(qdes, (char *)&i , sizeof(int), 0) == -1) {
 				printf("mq_send() failed\n");
 			}
-			//printf("Sent work %d from producer %d\n", i, producer_id);
 		}
 	}
 	if (mq_close(qdes) == -1) {
@@ -172,25 +154,25 @@ void doProducerWork(){
 }
 void doConsumerWork(){
 	
-	for(int i =0; i<num; i++){
+	int work = -1;
+	int temp = 0;
+	while(1){
 			//receive value from buffer
-			int work = -1;
 			struct timespec ts = {time(0) + 1, 0};
 			if (mq_timedreceive(qdes, (char *) &work, sizeof(int), 0, &ts) == -1) {
 				//If you time out then there are no more values left
-				// if (mq_close(qdes) == -1) {
-				// 	exit(2);
-				// }
-				// exit(0);
+				//close mailbox before leaving
+				if (mq_close(qdes) == -1) {
+					exit(2);
+				}
+				exit(0);
 			}
 
-			int temp = sqrt(work);
+			temp = sqrt(work);
 			if(temp*temp == work && work !=-1){
 				printf("%d,%d,%d\n", consumer_id, work, temp);
 			}
-			if(work == num){
-				exit(0);
-			}
+
 	}
 }
 

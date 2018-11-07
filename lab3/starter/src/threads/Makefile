@@ -1,10 +1,11 @@
 # Makefile, ECE254 lab5 Linux Concurrency Control
+# Jonathan Shahen, 2018/09/03
 # Yiqing Huang, 2014/07/16
 
 CC = gcc
-CFLAGS = -Wall -g #-DDEBUG_1
+CFLAGS = -Wall -ggdb -std=c99
 LD = gcc
-LDFLAGS = -g 
+LDFLAGS = -ggdb
 LDLIBS = -lrt -lpthread -lm
 
 SRCS   = produce.c 
