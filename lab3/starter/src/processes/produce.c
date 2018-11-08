@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <math.h>
+#include <signal.h>
 
 double g_time[2];
 
@@ -23,6 +24,7 @@ void printTime();
 
 void doProducerWork();
 void doConsumerWork();
+void myhandle(int mysignal);
 
 //message queue's
 mqd_t qdes;
@@ -107,11 +109,13 @@ int main(int argc, char *argv[])
 	
 	if(pid!=0){
 		int tmp =0;
-		for(int i =0; i < (num_c); i++){
-			waitpid(consumerArray[i], &tmp, 0); 
-		}
 		for(int i =0; i < (num_p); i++){
 			waitpid(producerArray[i], &tmp, 0); 
+		}
+
+		for(int i =0; i < (num_c); i++){
+			kill( (pid_t)consumerArray[i] , SIGTERM);
+			waitpid((pid_t)consumerArray[i], &tmp, 0); 
 		}
 		if (mq_close(qdes) == -1) {
 			perror("mq_close() failed");
@@ -156,11 +160,12 @@ void doConsumerWork(){
 	
 	int work = -1;
 	int temp = 0;
+	signal(SIGTERM, myhandle);
+	
 	while(1){
 			//receive value from buffer
-			struct timespec ts = {time(0) + 1, 0};
-			if (mq_timedreceive(qdes, (char *) &work, sizeof(int), 0, &ts) == -1) {
-				//If you time out then there are no more values left
+			if (mq_receive(qdes, (char *) &work, sizeof(int), 0) == -1) {
+				
 				//close mailbox before leaving
 				if (mq_close(qdes) == -1) {
 					exit(2);
@@ -174,5 +179,12 @@ void doConsumerWork(){
 			}
 
 	}
+}
+void myhandle(int mysignal){
+
+	if (mq_close(qdes) == -1) {
+		exit(2);
+	}
+	exit(0);
 }
 
