@@ -66,55 +66,45 @@ int main(int argc, char *argv[])
 	buffer = (int*) malloc(maxmsg*sizeof(int));
 	
 	
-	void *id;
 	//create producers
 	for(int i =0; i<num_p; i++){
 
-		sem_wait(&sem_printf);
-		printf("Created Producer %d\n", i);
-		sem_post(&sem_printf);
-
-		id= &i;
-		pthread_create(&producers[i], NULL, producer, id);
+		//id= &i;
+		int *arg =  malloc(sizeof(*arg));
+		*arg = i;
+		pthread_create(&producers[i], NULL, producer, arg);
 	}
 	//create consumers
 	for(int i =0; i<num_c; i++){
-
-		sem_wait(&sem_printf);
-		printf("Created Consumer %d\n", i);
-		sem_post(&sem_printf);
 		
-		pthread_create(&consumers[i], NULL, consumer, (void *)&i);
+		//id= &i;
+		int *arg =  malloc(sizeof(*arg));
+		*arg = i;
+		pthread_create(&consumers[i], NULL, consumer, arg);
 	}
 
 	//dummy variable
 	void* rval;
 
-	//join all producer threads before exiting
-	for(int i =0; i<num_p; i++){
-		pthread_join(producers[i], &rval);
-
-		sem_wait(&sem_printf);
-		printf("Cleaning producer %d\n", i);
-		sem_post(&sem_printf);
-		
-		free( rval );
-	}
-
 	//join all consumer threads before exiting
 	for(int i =0; i<num_c; i++){
 		pthread_join(consumers[i], &rval);
 		
-		sem_wait(&sem_printf);
-		printf("Cleaning consumer %d\n", i);
-		sem_post(&sem_printf);
+		free( rval );
+	}
+	//join all producer threads before exiting
+	for(int i =0; i<num_p; i++){
+		pthread_join(producers[i], &rval);
 		
 		free( rval );
 	}
 
+	
+
+	free(buffer);
 	//deallocate any heap allocated variables
 	printTime();
-	free(buffer);
+	
 	
 	exit(0);
 }
@@ -133,52 +123,48 @@ void printTime(){
 
 void* producer(void *param){
 	//get producer ID
-	int ID = *(int *)(param) -1;
+	int ID = *(int *)(param);
 
-	sem_wait(&sem_printf);
-	printf("At Producer %d\n ", ID);
-	sem_post(&sem_printf);
 	
 	for(int i =0; i<num; i++){
 		if(i%num_p == ID){
 			sem_wait(&sem_buffer_add);
+
 			sem_wait(&sem_buffer);
+			
 			buffer[buffer_ptr] = i;
 			buffer_ptr++;
-
+			
 			sem_post(&sem_buffer);
 		}
 	}
-
+	free(param);
 	pthread_exit(0);
 }
 
 void* consumer(void *param){
 	int work = -1;
 	int temp = 0;
-	int consumer_id = *((int*)(param)); //cast to int ptr then dereference
+	int consumer_id = *(int *)(param); //cast to int ptr then dereference
 	
-	sem_wait(&sem_printf);
-	printf("At Consumer %d\n ", consumer_id);
-	sem_post(&sem_printf);
 
 	while(1){
 		sem_wait(&sem_buffer);
 		if(num_consumed == num){
-			break;
+			sem_post(&sem_buffer);
+			free(param);
+			pthread_exit(0);
 		}
 		else if(buffer_ptr > 0){
 			buffer_ptr--;
 			work = buffer[buffer_ptr];
 			num_consumed++;
 			sem_post(&sem_buffer_add);
+			sem_post(&sem_buffer);
 		}else{
 			sem_post(&sem_buffer);
 			continue;	
 		}
-
-		sem_post(&sem_buffer);
-
 		temp = sqrt(work);
 		if(temp*temp == work){
 			sem_wait(&sem_printf);
@@ -187,8 +173,7 @@ void* consumer(void *param){
 		}
 
 		
-		
 	}
 
-	pthread_exit(0);
+	
 }
