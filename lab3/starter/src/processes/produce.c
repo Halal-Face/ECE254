@@ -55,6 +55,9 @@ int main(int argc, char *argv[])
 	maxmsg = atoi(argv[2]); /* buffer size                */
 	num_p = atoi(argv[3]);  /* number of producers        */
 	num_c = atoi(argv[4]);  /* number of consumers        */
+    
+    gettimeofday(&tv, NULL);
+    g_time[0] = (tv.tv_sec) + tv.tv_usec/1000000.;
 	
 	int producerArray[num_p];
 	int consumerArray[num_c];
@@ -73,7 +76,7 @@ int main(int argc, char *argv[])
 	
 	qdes  = mq_open(qname, O_RDWR | O_CREAT, mode, &attr);
 	if (qdes == -1 ) {
-		printf("mq_open() failed");
+		printf("mq_open() failed. \n");
 		exit(1);
 	}
 	
@@ -122,7 +125,12 @@ int main(int argc, char *argv[])
 			exit(2);
 		}
 		
-		printTime();
+        gettimeofday(&tv, NULL);
+        g_time[1] = (tv.tv_sec) + tv.tv_usec/1000000.;
+        
+        printf("System execution time: %.6lf seconds\n", \
+               g_time[1] - g_time[0]);
+		//printTime();
 	}
 	
 	exit(0);
