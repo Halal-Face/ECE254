@@ -51,15 +51,34 @@ def generate_test_data():
     Calls the specific test cases asked for by the lab.
     '''
     test_cases = [
-        {'N':100, 'B':8, 'P':1, 'C':1}, 
-        {'N':100, 'B':8, 'P':3, 'C':3}, 
+        {'N':100, 'B':8, 'P':1, 'C':1},
     ]
     i = 1
     for t in test_cases:
-        for k in range (0,1000) :
-            print 'Test Case: {}/{}'.format(i, 2000)
+        for k in range (0,100) :
+            print 'Variable N, Constant B P C: {}/{}'.format(k, 100)
             i += 1
             call_produce(PROG, '{} {} {} {}'.format(t['N']+k, t['B'], t['P'], t['C']), X)
+            print ''
+        for k in range (0,100) :
+            print 'Variable B, Constant N P C: {}/{}'.format(k, 100)
+            i += 1
+            call_produce(PROG, '{} {} {} {}'.format(t['N'], t['B']+(k/2), t['P'], t['C']), X)
+            print ''
+        for k in range (0,100) :
+            print 'Variable p, Constant N B C: {}/{}'.format(k, 100)
+            i += 1
+            call_produce(PROG, '{} {} {} {}'.format(t['N'], t['B'], t['P']+(k/2), t['C']), X)
+            print ''
+        for k in range (0,100) :
+            print 'Variable C, Constant N B P: {}/{}'.format(k, 100)
+            i += 1
+            call_produce(PROG, '{} {} {} {}'.format(t['N'], t['B'], t['P'], t['C'])+(k/2), X)
+            print ''
+        for k in range (0,100) :
+            print 'Variable C P, Constant N B : {}/{}'.format(k, 100)
+            i += 1
+            call_produce(PROG, '{} {} {} {}'.format(t['N'], t['B'], t['P']+(k/2), t['C'])+(k/2), X)
             print ''
 
 def generate_stats_table():

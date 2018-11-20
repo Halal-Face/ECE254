@@ -1,5 +1,5 @@
-// Use this to see if a number has an integer square root
-#define EPS 1.E-7
+#define _POSIX_SOURCE
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,13 +19,14 @@ double g_time[2];
 void printTime();
 void* producer();
 void* consumer();
+void busy_loop(int iters);
 
 
 int num;
 int maxmsg;
 int num_p;
 int num_c;
-int i;
+
 struct timeval tv;
 
 int* buffer;
@@ -43,8 +44,6 @@ sem_t sem_printf;
 
 int main(int argc, char *argv[])
 {
-	
-
 	if (argc != 5) {
 		printf("Usage: %s <N> <B> <P> <C>\n", argv[0]);
 		exit(1);
@@ -58,8 +57,8 @@ int main(int argc, char *argv[])
     gettimeofday(&tv, NULL);
     g_time[0] = (tv.tv_sec) + tv.tv_usec/1000000.;
 
-	pthread_t producers[num_p];
-	pthread_t consumers[num_c];
+	pthread_t producers[num_p];			// array of producer threads
+	pthread_t consumers[num_c];			// array of consumer threads
 	
 	sem_init( &sem_buffer, 0, 1 );
 	sem_init( &sem_buffer_add, 0, maxmsg );
@@ -70,43 +69,27 @@ int main(int argc, char *argv[])
 	
 	
 	//create producers
-	for(int i =0; i<num_p; i++){
-
-		//id= &i;
-		int *arg =  malloc(sizeof(*arg));
-		*arg = i;
-		pthread_create(&producers[i], NULL, producer, arg);
+	for(int i =0; i<num_p; i++){		
+		pthread_create(&producers[i], NULL, producer, i);
 	}
 	//create consumers
 	for(int i =0; i<num_c; i++){
-		
-		//id= &i;
-		int *arg =  malloc(sizeof(*arg));
-		*arg = i;
-		pthread_create(&consumers[i], NULL, consumer, arg);
-	}
-
-	//dummy variable
-	void* rval;
-
-	//join all consumer threads before exiting
-	for(int i =0; i<num_c; i++){
-		pthread_join(consumers[i], &rval);
-		
-		free( rval );
-	}
-	//join all producer threads before exiting
-	for(int i =0; i<num_p; i++){
-		pthread_join(producers[i], &rval);
-		
-		free( rval );
+		pthread_create(&consumers[i], NULL, consumer, i);
 	}
 
 	
 
-	free(buffer);
+	//join all consumer threads before exiting
+	for(int i =0; i<num_c; i++){
+		pthread_join(consumers[i], NULL);
+	}
+	//join all producer threads before exiting
+	for(int i =0; i<num_p; i++){
+		pthread_join(producers[i], NULL);	
+	}
+
 	//deallocate any heap allocated variables
-	//printTime();
+	free(buffer);
     gettimeofday(&tv, NULL);
     g_time[1] = (tv.tv_sec) + tv.tv_usec/1000000.;
     
@@ -117,27 +100,16 @@ int main(int argc, char *argv[])
 	exit(0);
 }
 
-void printTime(){
-	gettimeofday(&tv, NULL);
-	g_time[0] = (tv.tv_sec) + tv.tv_usec/1000000.;
-
-
-    gettimeofday(&tv, NULL);
-    g_time[1] = (tv.tv_sec) + tv.tv_usec/1000000.;
-
-    printf("System execution time: %.6lf seconds\n", \
-            g_time[1] - g_time[0]);
-}
 
 void* producer(void *param){
 	//get producer ID
-	int ID = *(int *)(param);
+	int ID = (int )(param);
 
 	
 	for(int i =0; i<num; i++){
+		busy_loop(40000);
 		if(i%num_p == ID){
 			sem_wait(&sem_buffer_add);
-
 			sem_wait(&sem_buffer);
 			
 			buffer[buffer_ptr] = i;
@@ -146,24 +118,23 @@ void* producer(void *param){
 			sem_post(&sem_buffer);
 		}
 	}
-	free(param);
+	
 	pthread_exit(0);
 }
 
 void* consumer(void *param){
 	int work = -1;
-	int temp = 0;
-	int consumer_id = *(int *)(param); //cast to int ptr then dereference
+	int consumer_id = (int )(param); //cast to int ptr then dereference
 	
 
 	while(1){
 		sem_wait(&sem_buffer);
 		if(num_consumed == num){
 			sem_post(&sem_buffer);
-			free(param);
+			
 			pthread_exit(0);
 		}
-		else if(buffer_ptr > 0){
+		else if(buffer_ptr > 0){ //if buff ptr >0 then there are items waiting to be consumed
 			buffer_ptr--;
 			work = buffer[buffer_ptr];
 			num_consumed++;
@@ -173,7 +144,8 @@ void* consumer(void *param){
 			sem_post(&sem_buffer);
 			continue;	
 		}
-		temp = sqrt(work);
+		busy_loop(40000);
+		int temp = sqrt(work);
 		if(temp*temp == work){
 			sem_wait(&sem_printf);
 			printf("%d,%d,%d\n", consumer_id, work, temp);
@@ -184,4 +156,13 @@ void* consumer(void *param){
 	}
 
 	
+}
+void busy_loop(int iters)
+{
+  volatile int sink;
+  do
+  {
+    sink = 0;
+  } while (--iters > 0);
+  (void)sink;
 }

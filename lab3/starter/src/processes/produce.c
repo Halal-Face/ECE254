@@ -1,5 +1,5 @@
-// Use this to see if a number has an integer square root
-#define EPS 1.E-7
+#define _POSIX_SOURCE
+
 
 /*
 	Processes
@@ -19,18 +19,14 @@
 #include <signal.h>
 
 double g_time[2];
-
-void printTime();
-
 void doProducerWork();
 void doConsumerWork();
 void myhandle(int mysignal);
+void busy_loop(int iters);
 
 //message queue's
 mqd_t qdes;
-char *qname = "/mailbox";
-
-
+char *qname = "/z5mohamm";
 
 int pid;
 int producer_id = 0;
@@ -44,8 +40,6 @@ int num;
 
 int main(int argc, char *argv[])
 {
-	
-	//int i;
 	if (argc != 5) {
 		printf("Usage: %s <N> <B> <P> <C>\n", argv[0]);
 		exit(1);
@@ -59,14 +53,11 @@ int main(int argc, char *argv[])
     gettimeofday(&tv, NULL);
     g_time[0] = (tv.tv_sec) + tv.tv_usec/1000000.;
 	
-	int producerArray[num_p];
-	int consumerArray[num_c];
-	
-	
-		
+	int producerArray[num_p];	// array of producer P_ID
+	int consumerArray[num_c];	// array of consumer P_ID
 	
 	//message queue setup. Each child process will see the same message box
-	//Produers will send to qdes and consumers will consume form qdes
+	//Produers will send to qdes and consumers will receive form qdes
 	mode_t mode = S_IRUSR | S_IWUSR;
 	struct mq_attr attr;
 
@@ -112,10 +103,17 @@ int main(int argc, char *argv[])
 	
 	if(pid!=0){
 		int tmp =0;
+		// wait for producers to exit
 		for(int i =0; i < (num_p); i++){
 			waitpid(producerArray[i], &tmp, 0); 
 		}
-
+		//tight poll for message queue to have 0 items inside
+		struct mq_attr a;
+		mq_getattr(qdes, &a);
+		while(a.mq_curmsgs !=0){
+			mq_getattr(qdes, &a);
+		}
+		// kill and clean up  processes
 		for(int i =0; i < (num_c); i++){
 			kill( (pid_t)consumerArray[i] , SIGTERM);
 			waitpid((pid_t)consumerArray[i], &tmp, 0); 
@@ -130,27 +128,16 @@ int main(int argc, char *argv[])
         
         printf("System execution time: %.6lf seconds\n", \
                g_time[1] - g_time[0]);
-		//printTime();
 	}
 	
 	exit(0);
 }
 
-void printTime(){
-	gettimeofday(&tv, NULL);
-	g_time[0] = (tv.tv_sec) + tv.tv_usec/1000000.;
-
-
-    gettimeofday(&tv, NULL);
-    g_time[1] = (tv.tv_sec) + tv.tv_usec/1000000.;
-
-    printf("System execution time: %.6lf seconds\n", \
-            g_time[1] - g_time[0]);
-}
 
 void doProducerWork(){
 	
 	for(int i =0; i< num; i++){
+		busy_loop(50000);
 		if(i%num_p == producer_id){
 			//send your i to the queue;
 			if (mq_send(qdes, (char *)&i , sizeof(int), 0) == -1) {
@@ -168,7 +155,9 @@ void doConsumerWork(){
 	
 	int work = -1;
 	int temp = 0;
-	signal(SIGTERM, myhandle);
+	sigset_t waiting_mask;
+
+	signal(SIGTERM, myhandle); //register signal handeler
 	
 	while(1){
 			//receive value from buffer
@@ -180,10 +169,18 @@ void doConsumerWork(){
 				}
 				exit(0);
 			}
-
+			// block signals after receiving from the mailbox
+			sigsetmask(SIGINT);
+			busy_loop(50000);
 			temp = sqrt(work);
 			if(temp*temp == work && work !=-1){
 				printf("%d,%d,%d\n", consumer_id, work, temp);
+			}
+			// check and signals that were sent after blocking
+			sigpending (&waiting_mask);
+			if (sigismember (&waiting_mask, SIGINT)) {
+			myhandle(0);
+
 			}
 
 	}
@@ -194,5 +191,14 @@ void myhandle(int mysignal){
 		exit(2);
 	}
 	exit(0);
+}
+void busy_loop(int iters)
+{
+  volatile int sink;
+  do
+  {
+    sink = 0;
+  } while (--iters > 0);
+  (void)sink;
 }
 
