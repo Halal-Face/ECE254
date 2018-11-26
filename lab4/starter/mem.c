@@ -19,8 +19,9 @@ typedef struct node			//pointer to internal blocks of memory
 {
 	void* mem;				//pointer to memory
 	size_t free_mem;		//amount of free memory
-	// struct node* next; can be replaced by node+free_mem		
+							// struct node* next; can be replaced by mem+free_mem		
 	struct node* prev;
+	int allocated;
 } bfm_head*, wfm*;
 /* Functions */
 size_t FBA(size_t size)		// 4 Byte alligned
@@ -36,6 +37,11 @@ int best_fit_memory_init(size_t size)
 	if (bfm == 0 || size < sizeof(node)){
 		return -1;
 	}
+
+	bfm_head = bfm;
+	bfm_head->free_mem = FBA(size-sizeof(node));
+	bfm_head->mem = bfm_head+1;
+	bdm_head->prev = NULL;
 	return 0;
 
 }
@@ -53,6 +59,8 @@ int worst_fit_memory_init(size_t size)
 void *best_fit_alloc(size_t size)
 {
 	size = FBA(size);
+
+	if(bfm_head!=null && )
 
 	return NULL;
 }
