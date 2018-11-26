@@ -21,7 +21,7 @@ struct n			//pointer to internal blocks of memory
 	void* mem;				//pointer to memory
 	size_t free_mem;		//amount of free memory
 							// struct node* next; can be replaced by mem+free_mem		
-	struct node* prev;
+	struct n* prev;
 	int allocated;
 };
 typedef struct n node;
@@ -106,6 +106,7 @@ void *best_fit_alloc(size_t size)
 			node *new_node = temp_node->mem + size;
 			new_node->mem = new_node+sizeof(node);
 			new_node->free_mem = temp_node->free_mem - size;
+			new_node->prev = temp_node;
 			temp_node->free_mem = size; 
 
 		}
@@ -125,11 +126,11 @@ void *worst_fit_alloc(size_t size)
 void best_fit_dealloc(void *ptr) 
 {
 	// To be completed by students
-    node temp_node = ptr - sizeof(node);
+    node *temp_node = ptr - sizeof(node);
     
     //Set the block to unallocted
     temp_node->allocated = 0;
-    node next_node = temp_node->mem + temp_node->free_mem;
+    node *next_node = temp_node->mem + temp_node->free_mem;
     
     //Recombine the current block with the next block if the next block is free block
     if((next_node != NULL) && (next_node->allocated == 0)){
@@ -147,11 +148,11 @@ void best_fit_dealloc(void *ptr)
 void worst_fit_dealloc(void *ptr) 
 {
 	// To be completed by students
-    node temp_node = ptr - sizeof(node);
+    node *temp_node = ptr - sizeof(node);
     
     //Set the block to unallocted
     temp_node->allocated = 0;
-    node next_node = temp_node->mem + temp_node->free_mem;
+    node *next_node = temp_node->mem + temp_node->free_mem;
     
     //Recombine the current block with the next block if the next block is free block
     if((next_node != NULL) && (next_node->allocated == 0)){
@@ -172,7 +173,7 @@ void worst_fit_dealloc(void *ptr)
 int best_fit_count_extfrag(size_t size)
 {
 	// To be completed by students
-    node temp_node = bfm_head;
+    node *temp_node = bfm_head;
     int count = 0;
     
     while(temp_node != NULL){
@@ -187,7 +188,7 @@ int best_fit_count_extfrag(size_t size)
 int worst_fit_count_extfrag(size_t size)
 {
 	// To be completed by students
-    node temp_node = bfm_head;
+    node *temp_node = bfm_head;
     int count = 0;
     
     while(temp_node != NULL){

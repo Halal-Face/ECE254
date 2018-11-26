@@ -2,7 +2,7 @@
 # Yiqing Huang, 2017/07/10
 
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -ggdb -std=c99
 LD = gcc
 LDFLAGS = -g 
 LDLIBS = 
