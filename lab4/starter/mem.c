@@ -130,17 +130,21 @@ void best_fit_dealloc(void *ptr)
     
     //Set the block to unallocted
     temp_node->allocated = 0;
-    node *next_node = temp_node->mem + temp_node->free_mem;
+    node *next_node = temp_node->next;
+    node *prev_node = temp_node->prev;
     
     //Recombine the current block with the next block if the next block is free block
     if((next_node != NULL) && (next_node->allocated == 0)){
         temp_node->free_mem = temp_node->free_mem + sizeof(node) + next_node->free_mem;
+        next_node->next->prev = temp_node;
+        temp_node->next = next_node->next;
     }
         
     //Recombine the current block with the previous block if the previous block is free block
     if((temp_node->prev != NULL) && (temp_node->prev->allocated == 0)){
-        temp_node->prev->free_mem = temp_node->prev->free_mem + sizeof(node) + temp_node->free_mem;
-        temp_node = temp_node->prev;
+        temp_node->free_mem = temp_node->free_mem + sizeof(node) + temp_node->prev->free_mem;
+        prev_node->prev->next = temp_node;
+        temp_node->prev = prev_node->prev;
     }
 	return;
 }
@@ -152,17 +156,21 @@ void worst_fit_dealloc(void *ptr)
     
     //Set the block to unallocted
     temp_node->allocated = 0;
-    node *next_node = temp_node->mem + temp_node->free_mem;
+    node *next_node = temp_node->next;
+    node *prev_node = temp_node->prev;
     
     //Recombine the current block with the next block if the next block is free block
     if((next_node != NULL) && (next_node->allocated == 0)){
         temp_node->free_mem = temp_node->free_mem + sizeof(node) + next_node->free_mem;
+        next_node->next->prev = temp_node;
+        temp_node->next = next_node->next;
     }
     
     //Recombine the current block with the previous block if the previous block is free block
     if((temp_node->prev != NULL) && (temp_node->prev->allocated == 0)){
-        temp_node->prev->free_mem = temp_node->prev->free_mem + sizeof(node) + temp_node->free_mem;
-        temp_node = temp_node->prev;
+        temp_node->free_mem = temp_node->free_mem + sizeof(node) + temp_node->prev->free_mem;
+        prev_node->prev->next = temp_node;
+        temp_node->prev = prev_node->prev;
     }
 	return;
 }
@@ -180,7 +188,7 @@ int best_fit_count_extfrag(size_t size)
         if((temp_node->allocated == 0) && (temp_node->free_mem < size)){
             count++;
         }
-        temp_node = temp_node->mem + temp_node->free_mem;
+        temp_node = temp_node->next;
     }
 	return count;
 }
@@ -195,7 +203,7 @@ int worst_fit_count_extfrag(size_t size)
         if((temp_node->allocated == 0) && (temp_node->free_mem < size)){
             count++;
         }
-        temp_node = temp_node->mem + temp_node->free_mem;
+        temp_node = temp_node->next;
     }
 	return count;
 }
