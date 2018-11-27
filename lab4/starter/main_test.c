@@ -39,7 +39,8 @@ int main(int argc, char *argv[])
 		p = best_fit_alloc(8);		// allocate 8B
 		printf("best fit: p=%p\n", p);
 		if ( p != NULL ) {
-			best_fit_dealloc(p);	
+			best_fit_dealloc(p);
+				
 		}
 		num = best_fit_count_extfrag(4);
 	} else if ( algo == 1 ) {
