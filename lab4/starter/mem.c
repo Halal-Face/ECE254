@@ -52,7 +52,7 @@ int best_fit_memory_init(size_t size)
 	bfm_head->prev = NULL;
 	bfm_head->next = NULL;
 	bfm_head->allocated = FALSE;
-	printf("bfm head %p\n", bfm_head);
+	//printf("bfm head %p\n", bfm_head);
 	return 0;
 
 }
@@ -70,7 +70,7 @@ int worst_fit_memory_init(size_t size)
 void *best_fit_alloc(size_t size)
 {
 	size = FBA(size);
-	printf("Allocating %d bytes\n", size);
+	//printf("Allocating %d bytes\n", size);
 	node* traverse = bfm_head;
 	size_t temp = 0;
 	node* temp_node = NULL;
@@ -80,7 +80,7 @@ void *best_fit_alloc(size_t size)
 			if(temp == 0)
 			{
 				temp = traverse->free_mem;
-				printf("how many times\n");
+				//printf("how many times\n");
 				temp_node = traverse;
 			}
 			else
@@ -91,7 +91,7 @@ void *best_fit_alloc(size_t size)
 				}
 			}
 		}
-		printf("traverse: %p\n", traverse);
+		//printf("traverse: %p\n", traverse);
 		traverse = bfm_head->next;
 	}
 	if(temp_node == NULL){
@@ -99,15 +99,15 @@ void *best_fit_alloc(size_t size)
 	}
 	else
 	{
-		printf("Best fit found a block of %d bytes with p=%p \n", temp, temp_node);
+		//printf("Best fit found a block of %d bytes with p=%p \n", temp, temp_node);
 		temp_node->allocated = TRUE;
 		if(temp <= size + sizeof(node)){
 			return temp_node->mem;
-			printf("%d: Inserted without splitting\n", size);
+			//printf("%d: Inserted without splitting\n", size);
 		}
 		else
 		{
-			printf("%d: By Splitting\n", size);
+			//printf("%d: By Splitting\n", size);
 			//temp_node->free_mem -=temp;
 			//node *new_node = temp_node->mem + size+1;
 			
@@ -115,7 +115,7 @@ void *best_fit_alloc(size_t size)
 			node *new_node = temp_node->mem +size;
 			
 			
-			printf("New node has adress %p\n", new_node);
+			//printf("New node has adress %p\n", new_node);
 			new_node->mem = new_node+sizeof(node)+1;
 			new_node->free_mem = temp_node->free_mem - size -sizeof(node);
 			new_node->prev = temp_node;
@@ -123,7 +123,7 @@ void *best_fit_alloc(size_t size)
 			
 			temp_node->free_mem = size;
 			temp_node->next = new_node;
-			printf("%d: Temp Node Free Mem %d\n", temp_node->free_mem); 
+			//printf("%d: Temp Node Free Mem %d\n", temp_node->free_mem); 
 			return temp_node->mem;
 		}
 	}
@@ -146,10 +146,10 @@ void best_fit_dealloc(void *ptr)
     
     //Set the block to unallocted
     temp_node->allocated = FALSE;
-	printf("Ptr has %p mem\n", ptr);
-	printf("Size of node %d\n", sizeof(node));
-	printf("Node to be de-allocated has %p pointer\n", temp_node);
-	printf("Node to be de-allocated has %d mem\n", (int)temp_node->free_mem);
+	//printf("Ptr has %p mem\n", ptr);
+	//printf("Size of node %d\n", sizeof(node));
+	//printf("Node to be de-allocated has %p pointer\n", temp_node);
+	//printf("Node to be de-allocated has %d mem\n", (int)temp_node->free_mem);
     node *next_node = temp_node->mem + temp_node->free_mem;
     //Recombine the current block with the next block if the next block is free block
     if((next_node != NULL) && (next_node->allocated == FALSE)){
