@@ -13,8 +13,8 @@
 /* defines */
 #define TRUE 1
 #define FALSE 0
-#define BEST_FIT 1
-#define WORST_FIT 0
+#define BEST_FIT 0
+#define WORST_FIT 1
 
 struct n			
 {
@@ -33,6 +33,7 @@ node* wfm_head = NULL;
 
 /* Functions */
 void print_ll(int setting);
+void dealloc(void *ptr, int setting);
 
 size_t FBA(size_t size)		// 4 Byte alligned
 { 
@@ -53,10 +54,13 @@ int best_fit_memory_init(size_t size)
 
 	bfm_head = bfm;
 	bfm_head->free_mem = FBA(size-sizeof(node));
-	bfm_head->mem = bfm_head+sizeof(node)+1;
+	bfm_head->mem = bfm_head + sizeof(node)+1;
 	bfm_head->prev = NULL;
 	bfm_head->next = NULL;
 	bfm_head->allocated = FALSE;
+	printf("Head %p\n", bfm_head);
+	printf("Offset for mem %d\n",sizeof(node)+1 );
+	printf("Mem %p\n", bfm_head->mem);
 	return 0;
 
 }
@@ -150,7 +154,7 @@ void *worst_fit_alloc(size_t size)
 	node* temp_node = NULL;
 
 	while(traverse!=NULL){
-		if( traverse->allocated!=TRUE && traverse->free_mem >= size){
+		if( traverse->allocated == FALSE && traverse->free_mem >= size){
 			if(temp == 0)
 			{
 				temp = traverse->free_mem;
@@ -183,7 +187,7 @@ void *worst_fit_alloc(size_t size)
 			node *new_node = temp_node->mem +size;
 			
 			//printf("New node has adress %p\n", new_node);
-			new_node->mem = new_node+sizeof(node)+1;
+			new_node->mem = new_node + sizeof(node) + 1;
 			new_node->free_mem = temp_node->free_mem - size -sizeof(node);
 			new_node->allocated = FALSE;
 			new_node->prev = temp_node;
@@ -194,6 +198,7 @@ void *worst_fit_alloc(size_t size)
 			}
 			
 			temp_node->free_mem = size;
+			temp_node->mem = temp_node + sizeof(node)+1;
 			temp_node->next = new_node;
 			//printf("%d: Temp Node Free Mem %d\n", temp_node->free_mem); 
 			return temp_node->mem;
@@ -206,13 +211,36 @@ void *worst_fit_alloc(size_t size)
 /* memory de-allocator */
 void best_fit_dealloc(void *ptr) 
 {
+	dealloc(ptr, BEST_FIT);
+	return;
+}
+
+void worst_fit_dealloc(void *ptr) 
+{
+	dealloc(ptr, WORST_FIT);
+	return;
+}
+
+void dealloc(void *ptr, int setting)
+{
 	if(ptr == NULL)
 	{
 		return;
 	}
 	// To be completed by students
+/*
     node* temp_node = bfm_head;
-    
+*/
+	node* temp_node;
+    if(setting == BEST_FIT)
+	{
+		temp_node = bfm_head;
+	}
+	else if(setting == WORST_FIT)
+	{
+		temp_node = wfm_head;
+	}
+
     while(temp_node->mem != ptr){
         temp_node = temp_node->next;
         //if it cannot be found return NULL
@@ -225,17 +253,6 @@ void best_fit_dealloc(void *ptr)
 	
     node *next_node = temp_node->next;
     node *prev_node = temp_node->prev;
-    if(temp_node == bfm_head)
-	{
-		printf("Deallocating Head ");
-		if(next_node != NULL){
-			printf("with next node %p,", next_node);
-		}
-		if(prev_node != NULL){
-			printf("with prev node %p,", prev_node);
-		}
-		printf("\n");
-	}
     
     //Recombine the current block with the next block if the next block is free block
     if((next_node != NULL) && (next_node->allocated == FALSE)){
@@ -258,11 +275,10 @@ void best_fit_dealloc(void *ptr)
         }
         temp_node = prev_node;
     }
-	// print_ll(BEST_FIT);
 	return;
 }
 
-void worst_fit_dealloc(void *ptr) 
+/*void worst_fit_dealloc(void *ptr)
 {
     if(ptr == NULL)
     {
@@ -306,7 +322,7 @@ void worst_fit_dealloc(void *ptr)
         temp_node = prev_node;
     }
 	return;
-}
+}*/
 
 /* memory algorithm metric utility function(s) */
 
@@ -332,7 +348,7 @@ int best_fit_count_extfrag(size_t size)
 int worst_fit_count_extfrag(size_t size)
 {
 	// To be completed by students
-    node *temp_node = bfm_head;
+    node *temp_node = wfm_head;
     int count = 0;
     
     while(temp_node != NULL)
@@ -345,21 +361,20 @@ int worst_fit_count_extfrag(size_t size)
 	return count;
 }
 
-
+//Print out the blocks information
 void print_ll(int setting)
 {
-	printf("Test\n");
 	node *traverse;
 	printf("Mode: ");
 	if(setting == BEST_FIT)
 	{
 		traverse = bfm_head;
-		printf("BEST FIT\n");
+		printf("BEST FIT with head %p\n", bfm_head);
 	}
 	else if(setting == WORST_FIT)
 	{
 		traverse = wfm_head;
-		printf("WORST FIT\n");
+		printf("WORST FIT with head %p\n", wfm_head);
 	}
 	else
 	{
