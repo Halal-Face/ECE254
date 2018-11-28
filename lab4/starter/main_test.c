@@ -18,7 +18,8 @@
 
 #define BEST_FIT 0
 #define WORST_FIT 1
-
+int flag = 1;
+int start = 1;
 void randomDeAlloc(int setting, void* ptr[], int i);
 int randomAlloc(int setting, void* ptr[]);
 void print_ll(int setting);
@@ -108,9 +109,11 @@ int randomAlloc(int setting, void* ptr[])
 }
 void randomDeAlloc(int setting, void* ptr[], int i)
 {
+	start ^=flag;
 	if(setting == BEST_FIT)
 	{
-		for(int k = 1; k<i+1; k+=2)
+		
+		for(int k = 1+start; k<i+1; k+=2)
 		{
 			best_fit_dealloc(ptr[k]);
 			ptr[k] = NULL;
@@ -118,7 +121,7 @@ void randomDeAlloc(int setting, void* ptr[], int i)
 	}
 	else if(setting == WORST_FIT)
 	{
-		for(int k = 1; k<i+1; k+=2)
+		for(int k = 1+start; k<i+1; k+=2)
 		{
 			worst_fit_dealloc(ptr[k]);
 			ptr[k] = NULL;
