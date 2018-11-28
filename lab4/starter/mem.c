@@ -272,7 +272,7 @@ void dealloc(void *ptr, int setting)
 /* count how many free blocks are less than the input size */ 
 int best_fit_count_extfrag(size_t size)
 {
-	  return (count_extfrag(size, BEST_FIT));
+    return (count_extfrag(size, BEST_FIT));
 }
 
 int worst_fit_count_extfrag(size_t size)
