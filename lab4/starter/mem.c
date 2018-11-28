@@ -316,16 +316,17 @@ int worst_fit_count_extfrag(size_t size)
 void print_ll(int setting)
 {
 	node *traverse;
+	printf("*************************************\n");
 	printf("Mode: ");
 	if(setting == BEST_FIT)
 	{
 		traverse = bfm_head;
-		printf("BEST FIT with head %p\n", bfm_head);
+		printf("BEST FIT \n");
 	}
 	else if(setting == WORST_FIT)
 	{
 		traverse = wfm_head;
-		printf("WORST FIT with head %p\n", wfm_head);
+		printf("WORST FIT\n");
 	}
 	else
 	{
@@ -347,4 +348,5 @@ void print_ll(int setting)
 		traverse =  traverse->next;
 		i++;	
 	}
+	printf("*************************************\n");
 }

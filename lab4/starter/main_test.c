@@ -35,65 +35,31 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	
-	if ( algo == 0 ) {
+	if ( algo == BEST_FIT ) {
+		
 		best_fit_memory_init(1024);	// initizae 1KB, best fit
 		void* ptr[30]; 
-		int i=1;
-		while(1)
-		{
-			p = best_fit_alloc(i);
-			if(p== NULL)
-			{
-				break;
-			}
-			else
-			{
-				ptr[i] = p;
-				i++;
-			}
-			 
-		}
+		printf("\n\n Initial\n");
 		print_ll(BEST_FIT);
-		for(int k = 1; k<i+1; k++)
-		{
-			best_fit_dealloc(ptr[k]);
-			printf("Deallocated %d\n", k);
-		}
-		print_ll(BEST_FIT);
-		
+		randomDeAlloc(BEST_FIT, ptr, randomAlloc(BEST_FIT, ptr));
+		num = worst_fit_count_extfrag(5);
+		printf("\n\n EXTERNAL FRAG FOR BEST FIT: %d\n\n", num);
 
 
 
-
-
-	} else if ( algo == 1 ) {
-
-		worst_fit_memory_init(1024);	// initizae 1KB, worst fit
+	}
+	else if(algo == WORST_FIT)
+	{
+		worst_fit_memory_init(1024);	// initizae 1KB, best fit
 		void* ptr[30]; 
-		int i=1;
-		while(1)
-		{
-			p = worst_fit_alloc(i);
-			if(p== NULL)
-			{
-				break;
-			}
-			else
-			{
-				ptr[i] = p;
-				i++;
-			}
-			 
-		}
+		printf("\n\n Initial\n");
 		print_ll(WORST_FIT);
-		for(int k = 1; k<i+1; k++)
-		{
-			worst_fit_dealloc(ptr[k]);
-			printf("Deallocated %d\n", k);
-		}
-		print_ll(WORST_FIT);
-		//num = worst_fit_count_extfrag(4);
-	} else {
+		randomDeAlloc(WORST_FIT, ptr, randomAlloc(WORST_FIT, ptr));
+		num = worst_fit_count_extfrag(5);
+		printf("\n\n EXTERNAL FRAG FOR WORST FIT: %d\n\n", num);
+	}
+	else 
+	{
 		fprintf(stderr, "Should not reach here!\n");
 		exit(1);
 	}
@@ -101,4 +67,76 @@ int main(int argc, char *argv[])
 	//printf("num = %d\n", num);
 
 	return 0;
+}
+
+int randomAlloc(int setting, void* ptr[])
+{
+	int i=1;
+	void* p=NULL;
+	printf("After Random Alloc\n");
+	if(setting == BEST_FIT)
+	{
+		int n=0;
+		while(1)
+		{
+			n = rand() % 16 + 1;
+			p = best_fit_alloc(n);
+			if(p == NULL)
+			{
+				break;
+			}
+			else
+			{
+				ptr[i] = p;
+				i++;
+			}
+			 
+		}
+		
+		print_ll(BEST_FIT);
+	}
+	else if(setting == WORST_FIT)
+	{
+		
+		int n=0;
+		while(1)
+		{
+			n = rand() % 16 + 1;
+			p = worst_fit_alloc(n);
+			if(p == NULL)
+			{
+				break;
+			}
+			else
+			{
+				ptr[i] = p;
+				i++;
+			}
+			 
+		}
+		print_ll(WORST_FIT);
+	}
+	
+	return i;
+}
+randomDeAlloc(int setting, void* ptr[], int i)
+{
+	if(setting == BEST_FIT)
+	{
+		for(int k = 1; k<i+1; k+=2)
+		{
+			best_fit_dealloc(ptr[k]);
+			ptr[k] = NULL;
+		}
+	}
+	else if(setting == WORST_FIT)
+	{
+		for(int k = 1; k<i+1; k+=2)
+		{
+			worst_fit_dealloc(ptr[k]);
+			ptr[k] = NULL;
+		}
+	}
+	printf("After Dealloc\n");
+	print_ll(setting);
 }
