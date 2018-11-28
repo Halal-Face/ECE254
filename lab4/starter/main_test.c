@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	if ( algo == 0 ) {
 		best_fit_memory_init(1024);	// initizae 1KB, best fit
 		void* ptr[30]; 
-		int i=0;
+		int i=1;
 		while(1)
 		{
 			p = best_fit_alloc(i);
@@ -57,25 +57,8 @@ int main(int argc, char *argv[])
 			best_fit_dealloc(ptr[k]);
 			printf("Deallocated %d\n", k);
 		}
-		i=0;
-		while(1)
-		{
-			p = best_fit_alloc(3);
-			if(p== NULL)
-			{
-				printf("When does this break? %d\n", i);
-				break;
-			}
-			else
-			{
-				ptr[i] = p;
-				i++;
-			}
-			 
-		}
 		print_ll(1);
-		num = best_fit_count_extfrag(4);
-		printf("num = %d\n", num);
+		
 
 
 

@@ -87,7 +87,7 @@ void *best_fit_alloc(size_t size)
 	node* temp_node = NULL;
 
 	while(traverse!=NULL){
-		if( traverse->allocated!=TRUE && traverse->free_mem >= size){
+		if( traverse->allocated == FALSE && traverse->free_mem >= size){
 			if(temp == 0)
 			{
 				temp = traverse->free_mem;
@@ -120,7 +120,7 @@ void *best_fit_alloc(size_t size)
 			node *new_node = temp_node->mem +size;
 			
 			//printf("New node has adress %p\n", new_node);
-			new_node->mem = new_node+sizeof(node)+1;
+			new_node->mem = new_node + sizeof(node) + 1;
 			new_node->free_mem = temp_node->free_mem - size -sizeof(node);
 			new_node->allocated = FALSE;
 			new_node->prev = temp_node;
@@ -131,6 +131,7 @@ void *best_fit_alloc(size_t size)
 			}
 			
 			temp_node->free_mem = size;
+			temp_node->mem = temp_node + sizeof(node)+1;
 			temp_node->next = new_node;
 			//printf("%d: Temp Node Free Mem %d\n", temp_node->free_mem); 
 			return temp_node->mem;
@@ -210,14 +211,23 @@ void best_fit_dealloc(void *ptr)
 		return;
 	}
 	// To be completed by students
-    node* temp_node = ptr - sizeof(node);
-    
+    node* temp_node = ptr - sizeof(node) +1;
     //Set the block to unallocted
     temp_node->allocated = FALSE;
 	
     node *next_node = temp_node->next;
     node *prev_node = temp_node->prev;
-    
+    if(temp_node == bfm_head)
+	{
+		printf("Deallocating Head ");
+		if(next_node != NULL){
+			printf("with next node %p,", next_node);
+		}
+		if(prev_node != NULL){
+			printf("with prev node %p,", prev_node);
+		}
+		printf("\n");
+	}
 	
     
     //Recombine the current block with the next block if the next block is free block
@@ -240,6 +250,7 @@ void best_fit_dealloc(void *ptr)
 		}
         temp_node->prev = prev_node->prev;
     }
+	// print_ll(BEST_FIT);
 	return;
 }
 
@@ -341,6 +352,7 @@ void print_ll(int setting)
 		printf("\t Memory: %zu\n", traverse->free_mem);
 		printf("\t Memory ptr: %p\n", traverse->mem);
 		printf("\t Allocated: %d\n", traverse->allocated);
+		printf("\t Node Address: %p\n", traverse);
 		printf("\t Next Ptr: ");
 		(traverse->next == NULL)? printf("NULL\n"): printf("%p\n", traverse->next);
 		printf("\t Prev Ptr: ");
