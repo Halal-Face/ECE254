@@ -32,13 +32,18 @@ node* bfm_head = NULL;
 node* wfm_head = NULL;
 
 /* Functions */
+
+// Debug function to print out linked list
 void print_ll(int setting);
+
+//dealloc module
 void dealloc(void *ptr, int setting);
+//extfrag module
 int count_extfrag(size_t size, int setting);
 
 
-
-size_t FBA(size_t size)		// 4 Byte alligned
+// Four Byte Allign the memory
+size_t FBA(size_t size)
 { 
 	if(size%4){
 		return (size +(4-size%4));
@@ -54,7 +59,8 @@ int best_fit_memory_init(size_t size)
 	if (bfm == 0 || size < sizeof(node)){
 		return -1;
 	}
-
+    
+    // initilize the linked list
 	bfm_head = bfm;
 	bfm_head->free_mem = FBA(size-sizeof(node));
 	bfm_head->mem = bfm_head + sizeof(node)+1;
@@ -72,7 +78,8 @@ int worst_fit_memory_init(size_t size)
 	if (wfm == 0 || size < sizeof(node)){
 		return -1;
 	}
-
+    
+    //initilize the linked list
 	wfm_head = wfm;
 	wfm_head->free_mem = FBA(size-sizeof(node));
 	wfm_head->mem = wfm_head+sizeof(node)+1;
@@ -89,7 +96,8 @@ void *best_fit_alloc(size_t size)
 	node* traverse = bfm_head;
 	size_t temp = 0;
 	node* temp_node = NULL;
-
+    
+    // loop through the linked list to find suitable block of memory for best fit
 	while(traverse!=NULL){
 		if( traverse->allocated == FALSE && traverse->free_mem >= size){
 			if(temp == 0)
@@ -113,9 +121,12 @@ void *best_fit_alloc(size_t size)
 	else
 	{
 		temp_node->allocated = TRUE;
+        
+        // if not enough space for a new node return
 		if(temp <= size + sizeof(node)){
 			return temp_node->mem;
 		}
+        // if there is space for a new node, split the temp node
 		else
 		{
 			node *new_node = temp_node->mem +size;
@@ -148,7 +159,7 @@ void *worst_fit_alloc(size_t size)
 	node* traverse = wfm_head;
 	size_t temp = 0;
 	node* temp_node = NULL;
-
+    // loop through the linked list to find suitable block of memory for worst fit
 	while(traverse!=NULL){
 		if( traverse->allocated == FALSE && traverse->free_mem >= size){
 			if(temp == 0)
@@ -172,9 +183,11 @@ void *worst_fit_alloc(size_t size)
 	else
 	{
 		temp_node->allocated = TRUE;
-		if(temp <= size + sizeof(node)){
+        // if not enough space for a new node return
+        if(temp <= size + sizeof(node)){
 			return temp_node->mem;
 		}
+        // if there is space for a new node, split the temp node
 		else
 		{
 			node *new_node = temp_node->mem +size;
@@ -219,7 +232,6 @@ void dealloc(void *ptr, int setting)
 	{
 		return;
 	}
-	// To be completed by students
 	node* temp_node = NULL;
     if(setting == BEST_FIT)
 	{
@@ -230,6 +242,7 @@ void dealloc(void *ptr, int setting)
 		temp_node = wfm_head;
 	}
 
+    // loop through the linked list to find the node to de-allocate
     while(temp_node->mem != ptr){
         temp_node = temp_node->next;
         //if it cannot be found return NULL
@@ -293,11 +306,11 @@ int count_extfrag(size_t size, int setting)
 	{
 		temp_node = wfm_head;
 	}
+    // loop through linked list and count external fragmentation
 	while(temp_node != NULL){
 		
         if((temp_node->allocated == FALSE) && (temp_node->free_mem < size)){
             count++;
-			//printf("While Loop %d\n", count);
         }
         temp_node = temp_node->next;
     }
