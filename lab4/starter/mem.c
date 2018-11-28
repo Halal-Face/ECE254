@@ -211,7 +211,17 @@ void best_fit_dealloc(void *ptr)
 		return;
 	}
 	// To be completed by students
-    node* temp_node = ptr - sizeof(node) +1;
+    //node* temp_node = ptr - sizeof(node) +1;
+    
+    node* temp_node = bfm_head;
+    
+    while(temp_node->mem != ptr){
+        temp_node = temp_node->next;
+        //if it cannot be found return NULL
+        if(temp_node == NULL) {
+            return;
+        }
+    }
     //Set the block to unallocted
     temp_node->allocated = FALSE;
 	
@@ -228,7 +238,6 @@ void best_fit_dealloc(void *ptr)
 		}
 		printf("\n");
 	}
-	
     
     //Recombine the current block with the next block if the next block is free block
     if((next_node != NULL) && (next_node->allocated == FALSE)){
@@ -243,12 +252,13 @@ void best_fit_dealloc(void *ptr)
        
     //Recombine the current block with the previous block if the previous block is free block
     if((temp_node->prev != NULL) && (temp_node->prev->allocated == FALSE)){
-        temp_node->free_mem = temp_node->free_mem + sizeof(node) + temp_node->prev->free_mem;
-        if(prev_node->prev!=NULL)
-		{
-			prev_node->prev->next = temp_node;
-		}
-        temp_node->prev = prev_node->prev;
+        prev_node->free_mem = temp_node->free_mem + sizeof(node) + prev_node->free_mem;
+        
+        prev_node->next = temp_node->next;
+        if(temp_node->next != NULL){
+            temp_node->next->prev = prev_node;
+        }
+        temp_node = prev_node;
     }
 	// print_ll(BEST_FIT);
 	return;
@@ -268,21 +278,23 @@ void worst_fit_dealloc(void *ptr)
     //Recombine the current block with the next block if the next block is free block
     if((next_node != NULL) && (next_node->allocated == FALSE)){
         temp_node->free_mem = temp_node->free_mem + sizeof(node) + next_node->free_mem;
-        // if(next_node->next != NULL)
-		// {
-			next_node->next->prev = temp_node;
-		// }
+        if(next_node->next != NULL)
+        {
+            next_node->next->prev = temp_node;
+        }
+        
         temp_node->next = next_node->next;
     }
     
     //Recombine the current block with the previous block if the previous block is free block
     if((temp_node->prev != NULL) && (temp_node->prev->allocated == FALSE)){
-        temp_node->free_mem = temp_node->free_mem + sizeof(node) + temp_node->prev->free_mem;
-        // if(prev_node->prev!=NULL)
-		// {
-			prev_node->prev->next = temp_node;
-		// }
-        temp_node->prev = prev_node->prev;
+        prev_node->free_mem = temp_node->free_mem + sizeof(node) + prev_node->free_mem;
+        
+        prev_node->next = temp_node->next;
+        if(temp_node->next != NULL){
+            temp_node->next->prev = prev_node;
+        }
+        temp_node = prev_node;
     }
 	return;
 }
