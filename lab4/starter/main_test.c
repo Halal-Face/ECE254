@@ -35,14 +35,53 @@ int main(int argc, char *argv[])
 	
 	if ( algo == 0 ) {
 		best_fit_memory_init(1024);	// initizae 1KB, best fit
-
-		p = best_fit_alloc(8);		// allocate 8B
-		printf("best fit: p=%p\n", p);
-		if ( p != NULL ) {
-			best_fit_dealloc(p);
-				
+		void* ptr[30]; 
+		int i=1;
+		while(1)
+		{
+			p = best_fit_alloc(i);
+			if(p== NULL)
+			{
+				break;
+			}
+			else
+			{
+				ptr[i-1] = p;
+				printf("best fit: p=%p\n", p);
+				i++;
+			} 
+		}
+		for(int k = 0; k<i; k+=2)
+		{
+			best_fit_dealloc(ptr[k]);
 		}
 		num = best_fit_count_extfrag(4);
+		printf("num = %d\n", num);
+
+
+
+		// p = best_fit_alloc(840);		// allocate 8B
+		// printf("best fit: p=%p\n", p);
+		// if ( p != NULL ) {
+		// 	best_fit_dealloc(p);				
+		// }
+		// num = best_fit_count_extfrag(4);
+		// printf("num = %d\n", num);
+
+		//p = best_fit_alloc(7);		// allocate 8B
+
+		// p = best_fit_alloc(7);		// allocate 8B
+		// printf("best fit: p=%p\n", p);
+		// if ( p != NULL ) {
+		// 	best_fit_dealloc(p);
+		// 	printf("Test\n");				
+		// }
+		// num = best_fit_count_extfrag(4);
+		// printf("num = %d\n", num);
+
+
+
+
 	} else if ( algo == 1 ) {
 
 		worst_fit_memory_init(1024);	// initizae 1KB, worst fit
@@ -58,7 +97,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	printf("num = %d\n", num);
+	//printf("num = %d\n", num);
 
 	return 0;
 }

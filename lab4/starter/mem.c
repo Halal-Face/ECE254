@@ -92,7 +92,7 @@ void *best_fit_alloc(size_t size)
 			}
 		}
 		//printf("traverse: %p\n", traverse);
-		traverse = bfm_head->next;
+		traverse = traverse->next;
 	}
 	if(temp_node == NULL){
 		return NULL;
@@ -107,7 +107,7 @@ void *best_fit_alloc(size_t size)
 		}
 		else
 		{
-			//printf("%d: By Splitting\n", size);
+			printf("%d: By Splitting\n", size);
 			//temp_node->free_mem -=temp;
 			//node *new_node = temp_node->mem + size+1;
 			
@@ -118,8 +118,13 @@ void *best_fit_alloc(size_t size)
 			//printf("New node has adress %p\n", new_node);
 			new_node->mem = new_node+sizeof(node)+1;
 			new_node->free_mem = temp_node->free_mem - size -sizeof(node);
+			new_node->allocated = FALSE;
 			new_node->prev = temp_node;
-			new_node->next = NULL;
+			new_node->next = temp_node->next;
+
+			if(new_node->next!=NULL){
+				new_node->next->prev = new_node;
+			}
 			
 			temp_node->free_mem = size;
 			temp_node->next = new_node;
@@ -146,16 +151,13 @@ void best_fit_dealloc(void *ptr)
     
     //Set the block to unallocted
     temp_node->allocated = FALSE;
-<<<<<<< HEAD
 
     
-=======
     node *next_node = temp_node->next;
     node *prev_node = temp_node->prev;
     
 	
     
->>>>>>> cc7d60cbbb5b42df4762311be1207cef32134dbb
     //Recombine the current block with the next block if the next block is free block
     if((next_node != NULL) && (next_node->allocated == FALSE)){
         temp_node->free_mem = temp_node->free_mem + sizeof(node) + next_node->free_mem;
@@ -206,12 +208,15 @@ int best_fit_count_extfrag(size_t size)
 	// To be completed by students
     node *temp_node = bfm_head;
     int count = 0;
-    
+    printf("Temp Node %p\n", temp_node);
     while(temp_node != NULL){
+		printf("The size of node is %d \n", temp_node->free_mem);
         if((temp_node->allocated == FALSE) && (temp_node->free_mem < size)){
+
             count++;
         }
         temp_node = temp_node->next;
+		
     }
 	return count;
 }
