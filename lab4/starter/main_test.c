@@ -79,7 +79,7 @@ int randomAlloc(int setting, void* ptr[])
 		int n=0;
 		while(1)
 		{
-			n = rand() % 6 + 1;
+			n = rand() % 13 + 1;
 			p = best_fit_alloc(n);
 			if(p == NULL)
 			{
@@ -101,7 +101,7 @@ int randomAlloc(int setting, void* ptr[])
 		int n=0;
 		while(1)
 		{
-			n = rand() % 6 + 1;
+			n = rand() % 13 + 1;
 			p = worst_fit_alloc(n);
 			if(p == NULL)
 			{

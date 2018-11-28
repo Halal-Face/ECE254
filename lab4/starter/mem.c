@@ -275,17 +275,20 @@ void dealloc(void *ptr, int setting)
 int best_fit_count_extfrag(size_t size)
 {
 	// To be completed by students
+    if(bfm_head == NULL){
+        return -1;
+    }
+    
     node *temp_node = bfm_head;
     int count = 0;
 
     while(temp_node != NULL){
         if((temp_node->allocated == FALSE) && (temp_node->free_mem < size)){
-
             count++;
         }
         temp_node = temp_node->next;
-		
     }
+        
 	return count;
 }
 
