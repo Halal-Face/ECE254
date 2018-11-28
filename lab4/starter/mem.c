@@ -53,10 +53,13 @@ int best_fit_memory_init(size_t size)
 
 	bfm_head = bfm;
 	bfm_head->free_mem = FBA(size-sizeof(node));
-	bfm_head->mem = bfm_head+sizeof(node)+1;
+	bfm_head->mem = bfm_head + sizeof(node)+1;
 	bfm_head->prev = NULL;
 	bfm_head->next = NULL;
 	bfm_head->allocated = FALSE;
+	printf("Head %p\n", bfm_head);
+	printf("Offset for mem %d\n",sizeof(node)+1 );
+	printf("Mem %p\n", bfm_head->mem);
 	return 0;
 
 }
@@ -211,23 +214,15 @@ void best_fit_dealloc(void *ptr)
 		return;
 	}
 	// To be completed by students
-    node* temp_node = ptr - sizeof(node) +1;
+    node* temp_node = ptr - sizeof(node)-1;
     //Set the block to unallocted
     temp_node->allocated = FALSE;
+	printf("Ptr %p \n", ptr);
+	printf("Temp Node %p\n", temp_node);
 	
     node *next_node = temp_node->next;
     node *prev_node = temp_node->prev;
-    if(temp_node == bfm_head)
-	{
-		printf("Deallocating Head ");
-		if(next_node != NULL){
-			printf("with next node %p,", next_node);
-		}
-		if(prev_node != NULL){
-			printf("with prev node %p,", prev_node);
-		}
-		printf("\n");
-	}
+    
 	
     
     //Recombine the current block with the next block if the next block is free block
@@ -243,14 +238,13 @@ void best_fit_dealloc(void *ptr)
        
     //Recombine the current block with the previous block if the previous block is free block
     if((temp_node->prev != NULL) && (temp_node->prev->allocated == FALSE)){
-        temp_node->free_mem = temp_node->free_mem + sizeof(node) + temp_node->prev->free_mem;
+        temp_node->free_mem = temp_node->free_mem + sizeof(node) + prev_node->free_mem;
         if(prev_node->prev!=NULL)
 		{
 			prev_node->prev->next = temp_node;
 		}
         temp_node->prev = prev_node->prev;
     }
-	// print_ll(BEST_FIT);
 	return;
 }
 
@@ -327,18 +321,17 @@ int worst_fit_count_extfrag(size_t size)
 
 void print_ll(int setting)
 {
-	printf("Test\n");
 	node *traverse;
 	printf("Mode: ");
 	if(setting == BEST_FIT)
 	{
 		traverse = bfm_head;
-		printf("BEST FIT\n");
+		printf("BEST FIT with head %p\n", bfm_head);
 	}
 	else if(setting == WORST_FIT)
 	{
 		traverse = wfm_head;
-		printf("WORST FIT\n");
+		printf("WORST FIT with head %p\n", wfm_head);
 	}
 	else
 	{
