@@ -52,9 +52,12 @@ int main(int argc, char *argv[])
 	{
 		worst_fit_memory_init(1024);	// initizae 1KB, best fit
 		void* ptr[30]; 
+
 		printf("\n\n Initial\n");
 		print_ll(WORST_FIT);
+
 		randomDeAlloc(WORST_FIT, ptr, randomAlloc(WORST_FIT, ptr));
+
 		num = worst_fit_count_extfrag(5);
 		printf("\n\n EXTERNAL FRAG FOR WORST FIT: %d\n\n", num);
 	}

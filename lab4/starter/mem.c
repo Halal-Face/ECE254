@@ -299,7 +299,7 @@ int best_fit_count_extfrag(size_t size)
 int worst_fit_count_extfrag(size_t size)
 {
 	// To be completed by students
-    node *temp_node = bfm_head;
+    node *temp_node = wfm_head;
     int count = 0;
     
     while(temp_node != NULL)
