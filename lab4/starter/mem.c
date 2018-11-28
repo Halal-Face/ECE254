@@ -34,6 +34,8 @@ node* wfm_head = NULL;
 /* Functions */
 void print_ll(int setting);
 void dealloc(void *ptr, int setting);
+void print_ll(int setting);
+
 
 size_t FBA(size_t size)		// 4 Byte alligned
 { 
@@ -112,18 +114,14 @@ void *best_fit_alloc(size_t size)
 	}
 	else
 	{
-		//printf("Best fit found a block of %d bytes with p=%p \n", temp, temp_node);
 		temp_node->allocated = TRUE;
 		if(temp <= size + sizeof(node)){
 			return temp_node->mem;
-			//printf("%d: Inserted without splitting\n", size);
 		}
 		else
 		{
-			//printf("%d: By Splitting\n", size);			
 			node *new_node = temp_node->mem +size;
 			
-			//printf("New node has adress %p\n", new_node);
 			new_node->mem = new_node + sizeof(node) + 1;
 			new_node->free_mem = temp_node->free_mem - size -sizeof(node);
 			new_node->allocated = FALSE;
@@ -137,7 +135,7 @@ void *best_fit_alloc(size_t size)
 			temp_node->free_mem = size;
 			temp_node->mem = temp_node + sizeof(node)+1;
 			temp_node->next = new_node;
-			//printf("%d: Temp Node Free Mem %d\n", temp_node->free_mem); 
+            
 			return temp_node->mem;
 		}
 	}
@@ -175,18 +173,14 @@ void *worst_fit_alloc(size_t size)
 	}
 	else
 	{
-		//printf("Best fit found a block of %d bytes with p=%p \n", temp, temp_node);
 		temp_node->allocated = TRUE;
 		if(temp <= size + sizeof(node)){
 			return temp_node->mem;
-			//printf("%d: Inserted without splitting\n", size);
 		}
 		else
 		{
-			//printf("%d: By Splitting\n", size);			
 			node *new_node = temp_node->mem +size;
 			
-			//printf("New node has adress %p\n", new_node);
 			new_node->mem = new_node + sizeof(node) + 1;
 			new_node->free_mem = temp_node->free_mem - size -sizeof(node);
 			new_node->allocated = FALSE;
@@ -200,7 +194,7 @@ void *worst_fit_alloc(size_t size)
 			temp_node->free_mem = size;
 			temp_node->mem = temp_node + sizeof(node)+1;
 			temp_node->next = new_node;
-			//printf("%d: Temp Node Free Mem %d\n", temp_node->free_mem); 
+
 			return temp_node->mem;
 		}
 	}
@@ -228,10 +222,7 @@ void dealloc(void *ptr, int setting)
 		return;
 	}
 	// To be completed by students
-/*
-    node* temp_node = bfm_head;
-*/
-	node* temp_node;
+	node* temp_node = NULL;
     if(setting == BEST_FIT)
 	{
 		temp_node = bfm_head;
@@ -278,52 +269,6 @@ void dealloc(void *ptr, int setting)
 	return;
 }
 
-/*void worst_fit_dealloc(void *ptr)
-{
-    if(ptr == NULL)
-    {
-        return;
-    }
-	// To be completed by students
-    node* temp_node = wfm_head;
-    
-    while(temp_node->mem != ptr){
-        temp_node = temp_node->next;
-        //if it cannot be found return NULL
-        if(temp_node == NULL) {
-            return;
-        }
-    }
-    //Set the block to unallocted
-    temp_node->allocated = FALSE;
-
-    node *next_node = temp_node->next;
-    node *prev_node = temp_node->prev;
-    
-    //Recombine the current block with the next block if the next block is free block
-    if((next_node != NULL) && (next_node->allocated == FALSE)){
-        temp_node->free_mem = temp_node->free_mem + sizeof(node) + next_node->free_mem;
-        
-        if(next_node->next != NULL)
-        {
-            next_node->next->prev = temp_node;
-        }
-        temp_node->next = next_node->next;
-    }
-    
-    //Recombine the current block with the previous block if the previous block is free block
-    if((temp_node->prev != NULL) && (temp_node->prev->allocated == FALSE)){
-        prev_node->free_mem = temp_node->free_mem + sizeof(node) + prev_node->free_mem;
-        
-        prev_node->next = temp_node->next;
-        if(temp_node->next != NULL){
-            temp_node->next->prev = prev_node;
-        }
-        temp_node = prev_node;
-    }
-	return;
-}*/
-
 /* memory algorithm metric utility function(s) */
 
 /* count how many free blocks are less than the input size */ 
@@ -332,9 +277,8 @@ int best_fit_count_extfrag(size_t size)
 	// To be completed by students
     node *temp_node = bfm_head;
     int count = 0;
-    //printf("Temp Node %p\n", temp_node);
+
     while(temp_node != NULL){
-		//printf("The size of node is %d \n", temp_node->free_mem);
         if((temp_node->allocated == FALSE) && (temp_node->free_mem < size)){
 
             count++;
@@ -351,8 +295,7 @@ int worst_fit_count_extfrag(size_t size)
     node *temp_node = wfm_head;
     int count = 0;
     
-    while(temp_node != NULL)
-	{
+    while(temp_node != NULL){
         if((temp_node->allocated == FALSE) && (temp_node->free_mem < size)){
             count++;
         }
@@ -365,16 +308,17 @@ int worst_fit_count_extfrag(size_t size)
 void print_ll(int setting)
 {
 	node *traverse;
+	printf("*************************************\n");
 	printf("Mode: ");
 	if(setting == BEST_FIT)
 	{
 		traverse = bfm_head;
-		printf("BEST FIT with head %p\n", bfm_head);
+		printf("BEST FIT \n");
 	}
 	else if(setting == WORST_FIT)
 	{
 		traverse = wfm_head;
-		printf("WORST FIT with head %p\n", wfm_head);
+		printf("WORST FIT\n");
 	}
 	else
 	{
@@ -396,4 +340,5 @@ void print_ll(int setting)
 		traverse =  traverse->next;
 		i++;	
 	}
+	printf("*************************************\n");
 }
