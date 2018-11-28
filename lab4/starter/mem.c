@@ -35,6 +35,7 @@ node* wfm_head = NULL;
 void print_ll(int setting);
 void dealloc(void *ptr, int setting);
 void print_ll(int setting);
+int count_extfrag(size_t size, int setting);
 
 
 size_t FBA(size_t size)		// 4 Byte alligned
@@ -274,37 +275,36 @@ void dealloc(void *ptr, int setting)
 /* count how many free blocks are less than the input size */ 
 int best_fit_count_extfrag(size_t size)
 {
-	// To be completed by students
-    if(bfm_head == NULL){
-        return -1;
-    }
-    
-    node *temp_node = bfm_head;
-    int count = 0;
-
-    while(temp_node != NULL){
-        if((temp_node->allocated == FALSE) && (temp_node->free_mem < size)){
-            count++;
-        }
-        temp_node = temp_node->next;
-    }
-        
-	return count;
+    return (count_extfrag(size, BEST_FIT));
 }
 
 int worst_fit_count_extfrag(size_t size)
 {
 	// To be completed by students
-    node *temp_node = wfm_head;
-    int count = 0;
-    
-    while(temp_node != NULL){
+    return (count_extfrag(size, WORST_FIT));
+}
+
+int count_extfrag(size_t size, int setting)
+{
+	node *temp_node = NULL;
+	int count = 0;
+	if(setting == BEST_FIT)
+	{
+		temp_node = bfm_head;
+	}
+	else if(setting == WORST_FIT)
+	{
+		temp_node = wfm_head;
+	}
+	while(temp_node != NULL){
         if((temp_node->allocated == FALSE) && (temp_node->free_mem < size)){
             count++;
         }
+        //printf("Count is %d)
         temp_node = temp_node->next;
     }
 	return count;
+
 }
 
 //Print out the blocks information
