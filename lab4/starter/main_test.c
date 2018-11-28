@@ -27,49 +27,31 @@ int main(int argc, char *argv[])
 {
 	int num = 0;
 	srand ( time(NULL) );
-	int algo = 0; // default algorithm to test is best fit  
-	//void *p, *q;
 
-	if (argc != 2) {
-		fprintf(stderr, "Usage: %s <0/1>. 0 for best fit and 1 for worst fit \n", argv[0]);
-		exit (1);
-	} else if (!strcmp(argv[1], "1") || !strcmp(argv[1], "0")) {
-		algo = atoi(argv[1]);
-	} else {
-		fprintf(stderr, "Invalid argument, please specify 0 or 1\n");
-		exit(1);
-	}
-	
-	if ( algo == BEST_FIT ) {
-		
-		best_fit_memory_init(1024);	// initizae 1KB, best fit
-		void* ptr[30]; 
-		printf("\n\n Initial\n");
-		print_ll(BEST_FIT);
+	void* ptr[30];
+	printf("BEST FIT,");
+	best_fit_memory_init(1024);	// initizae 1KB, best fit
+	for(int i=0; i<101; i++)
+	{
 		randomDeAlloc(BEST_FIT, ptr, randomAlloc(BEST_FIT, ptr));
 		num = best_fit_count_extfrag(5);
-		printf("\n\n EXTERNAL FRAG FOR BEST FIT: %d\n\n", num);
+		printf("%d,", num);
 	}
-	else if(algo == WORST_FIT)
+	printf("\n");
+		
+
+	
+	void* ptr2[30];
+	printf("WORSTT FIT,");
+	worst_fit_memory_init(1024);	// initizae 1KB, best fit
+	for(int i=0; i<101; i++)
 	{
-		worst_fit_memory_init(1024);	// initizae 1KB, best fit
-		void* ptr[30]; 
-
-		printf("\n\n Initial\n");
-		print_ll(WORST_FIT);
-
-		randomDeAlloc(WORST_FIT, ptr, randomAlloc(WORST_FIT, ptr));
-
+		randomDeAlloc(WORST_FIT, ptr2, randomAlloc(WORST_FIT, ptr2));
 		num = worst_fit_count_extfrag(5);
-		printf("\n\n EXTERNAL FRAG FOR WORST FIT: %d\n\n", num);
+		printf("%d,", num);
 	}
-	else 
-	{
-		fprintf(stderr, "Should not reach here!\n");
-		exit(1);
-	}
-
-	//printf("num = %d\n", num);
+	printf("\n");
+	
 
 	return 0;
 }
@@ -78,7 +60,7 @@ int randomAlloc(int setting, void* ptr[])
 {
 	int i=1;
 	void* p=NULL;
-	printf("After Random Alloc\n");
+	//printf("After Random Alloc\n");
 	if(setting == BEST_FIT)
 	{
 		int n=0;
@@ -98,7 +80,7 @@ int randomAlloc(int setting, void* ptr[])
 			 
 		}
 		
-		print_ll(BEST_FIT);
+		//print_ll(BEST_FIT);
 	}
 	else if(setting == WORST_FIT)
 	{
@@ -119,7 +101,7 @@ int randomAlloc(int setting, void* ptr[])
 			}
 			 
 		}
-		print_ll(WORST_FIT);
+		//print_ll(WORST_FIT);
 	}
 	
 	return i;
@@ -142,6 +124,6 @@ void randomDeAlloc(int setting, void* ptr[], int i)
 			ptr[k] = NULL;
 		}
 	}
-	printf("After Dealloc\n");
-	print_ll(setting);
+	//printf("After Dealloc\n");
+	//print_ll(setting);
 }
