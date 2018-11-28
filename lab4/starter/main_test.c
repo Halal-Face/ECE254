@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /* non-system provided header files. 
    Do not include more user-defined header files here
@@ -18,10 +19,14 @@
 #define BEST_FIT 0
 #define WORST_FIT 1
 
+void randomDeAlloc(int setting, void* ptr[], int i);
+int randomAlloc(int setting, void* ptr[]);
+void print_ll(int setting);
 
 int main(int argc, char *argv[])
 {
 	int num = 0;
+	srand ( time(NULL) );
 	int algo = 0; // default algorithm to test is best fit  
 	//void *p, *q;
 
@@ -42,7 +47,7 @@ int main(int argc, char *argv[])
 		printf("\n\n Initial\n");
 		print_ll(BEST_FIT);
 		randomDeAlloc(BEST_FIT, ptr, randomAlloc(BEST_FIT, ptr));
-		num = worst_fit_count_extfrag(5);
+		num = best_fit_count_extfrag(5);
 		printf("\n\n EXTERNAL FRAG FOR BEST FIT: %d\n\n", num);
 	}
 	else if(algo == WORST_FIT)
@@ -79,7 +84,7 @@ int randomAlloc(int setting, void* ptr[])
 		int n=0;
 		while(1)
 		{
-			n = rand() % 6 + 1;
+			n = rand() % 13 + 1;
 			p = best_fit_alloc(n);
 			if(p == NULL)
 			{
@@ -101,7 +106,7 @@ int randomAlloc(int setting, void* ptr[])
 		int n=0;
 		while(1)
 		{
-			n = rand() % 6 + 1;
+			n = rand() % 13 + 1;
 			p = worst_fit_alloc(n);
 			if(p == NULL)
 			{
@@ -119,7 +124,7 @@ int randomAlloc(int setting, void* ptr[])
 	
 	return i;
 }
-randomDeAlloc(int setting, void* ptr[], int i)
+void randomDeAlloc(int setting, void* ptr[], int i)
 {
 	if(setting == BEST_FIT)
 	{

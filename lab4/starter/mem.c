@@ -34,7 +34,8 @@ node* wfm_head = NULL;
 /* Functions */
 void print_ll(int setting);
 void dealloc(void *ptr, int setting);
-void print_ll(int setting);
+int count_extfrag(size_t size, int setting);
+
 
 
 size_t FBA(size_t size)		// 4 Byte alligned
@@ -60,9 +61,6 @@ int best_fit_memory_init(size_t size)
 	bfm_head->prev = NULL;
 	bfm_head->next = NULL;
 	bfm_head->allocated = FALSE;
-	printf("Head %p\n", bfm_head);
-	printf("Offset for mem %d\n",sizeof(node)+1 );
-	printf("Mem %p\n", bfm_head->mem);
 	return 0;
 
 }
@@ -285,7 +283,7 @@ int worst_fit_count_extfrag(size_t size)
 
 int count_extfrag(size_t size, int setting)
 {
-	node *temp_node;
+	node *temp_node = NULL;
 	int count = 0;
 	if(setting == BEST_FIT)
 	{
@@ -296,8 +294,10 @@ int count_extfrag(size_t size, int setting)
 		temp_node = wfm_head;
 	}
 	while(temp_node != NULL){
+		
         if((temp_node->allocated == FALSE) && (temp_node->free_mem < size)){
             count++;
+			//printf("While Loop %d\n", count);
         }
         temp_node = temp_node->next;
     }
