@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	if ( algo == 0 ) {
 		best_fit_memory_init(1024);	// initizae 1KB, best fit
 		void* ptr[30]; 
-		int i=1;
+		int i=0;
 		while(1)
 		{
 			p = best_fit_alloc(i);
@@ -46,38 +46,37 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				ptr[i-1] = p;
-				printf("best fit: p=%p\n", p);
+				ptr[i] = p;
 				i++;
-			} 
+			}
+			 
 		}
-		for(int k = 0; k<i; k+=2)
+		print_ll(1);
+		for(int k = 1; k<i+1; k++)
 		{
 			best_fit_dealloc(ptr[k]);
+			printf("Deallocated %d\n", k);
 		}
+		i=0;
+		while(1)
+		{
+			p = best_fit_alloc(3);
+			if(p== NULL)
+			{
+				printf("When does this break? %d\n", i);
+				break;
+			}
+			else
+			{
+				ptr[i] = p;
+				i++;
+			}
+			 
+		}
+		print_ll(1);
 		num = best_fit_count_extfrag(4);
 		printf("num = %d\n", num);
 
-
-
-		// p = best_fit_alloc(840);		// allocate 8B
-		// printf("best fit: p=%p\n", p);
-		// if ( p != NULL ) {
-		// 	best_fit_dealloc(p);				
-		// }
-		// num = best_fit_count_extfrag(4);
-		// printf("num = %d\n", num);
-
-		//p = best_fit_alloc(7);		// allocate 8B
-
-		// p = best_fit_alloc(7);		// allocate 8B
-		// printf("best fit: p=%p\n", p);
-		// if ( p != NULL ) {
-		// 	best_fit_dealloc(p);
-		// 	printf("Test\n");				
-		// }
-		// num = best_fit_count_extfrag(4);
-		// printf("num = %d\n", num);
 
 
 
