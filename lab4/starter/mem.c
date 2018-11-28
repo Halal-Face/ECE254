@@ -13,8 +13,8 @@
 /* defines */
 #define TRUE 1
 #define FALSE 0
-#define BEST_FIT 1
-#define WORST_FIT 0
+#define BEST_FIT 0
+#define WORST_FIT 1
 
 struct n			
 {
@@ -153,7 +153,7 @@ void *worst_fit_alloc(size_t size)
 	node* temp_node = NULL;
 
 	while(traverse!=NULL){
-		if( traverse->allocated!=TRUE && traverse->free_mem >= size){
+		if( traverse->allocated == FALSE && traverse->free_mem >= size){
 			if(temp == 0)
 			{
 				temp = traverse->free_mem;
@@ -186,7 +186,7 @@ void *worst_fit_alloc(size_t size)
 			node *new_node = temp_node->mem +size;
 			
 			//printf("New node has adress %p\n", new_node);
-			new_node->mem = new_node+sizeof(node)+1;
+			new_node->mem = new_node + sizeof(node) + 1;
 			new_node->free_mem = temp_node->free_mem - size -sizeof(node);
 			new_node->allocated = FALSE;
 			new_node->prev = temp_node;
@@ -197,6 +197,7 @@ void *worst_fit_alloc(size_t size)
 			}
 			
 			temp_node->free_mem = size;
+			temp_node->mem = temp_node + sizeof(node)+1;
 			temp_node->next = new_node;
 			//printf("%d: Temp Node Free Mem %d\n", temp_node->free_mem); 
 			return temp_node->mem;
@@ -209,17 +210,17 @@ void *worst_fit_alloc(size_t size)
 /* memory de-allocator */
 void best_fit_dealloc(void *ptr) 
 {
-	dealloc(ptr);
+	dealloc(ptr, BEST_FIT);
 	return;
 }
 
 void worst_fit_dealloc(void *ptr) 
 {
-	dealloc(ptr);
+	dealloc(ptr, WORST_FIT);
 	return;
 }
 
-void dealloc(void *ptr)
+void dealloc(void *ptr, int setting)
 {
 	if(ptr == NULL)
 	{
@@ -227,8 +228,16 @@ void dealloc(void *ptr)
 	}
 	// To be completed by students
     //node* temp_node = ptr - sizeof(node) +1;
+	node* temp_node;
+    if(setting == BEST_FIT)
+	{
+		temp_node = bfm_head;
+	}
+	else if(setting == WORST_FIT)
+	{
+		temp_node = wfm_head;
+	}
     
-    node* temp_node = bfm_head;
     
     while(temp_node->mem != ptr){
         temp_node = temp_node->next;

@@ -15,6 +15,8 @@
  */
 #include "mem.h"
 
+#define BEST_FIT 0
+#define WORST_FIT 1
 
 
 int main(int argc, char *argv[])
@@ -51,13 +53,13 @@ int main(int argc, char *argv[])
 			}
 			 
 		}
-		print_ll(1);
+		print_ll(BEST_FIT);
 		for(int k = 1; k<i+1; k++)
 		{
 			best_fit_dealloc(ptr[k]);
 			printf("Deallocated %d\n", k);
 		}
-		print_ll(1);
+		print_ll(BEST_FIT);
 		
 
 
@@ -67,13 +69,30 @@ int main(int argc, char *argv[])
 	} else if ( algo == 1 ) {
 
 		worst_fit_memory_init(1024);	// initizae 1KB, worst fit
-
-		q = worst_fit_alloc(8);		// allocate 8B
-		printf("worst fit: q=%p\n", q);
-		if ( q != NULL ) {
-			worst_fit_dealloc(q);	
+		void* ptr[30]; 
+		int i=1;
+		while(1)
+		{
+			p = worst_fit_alloc(i);
+			if(p== NULL)
+			{
+				break;
+			}
+			else
+			{
+				ptr[i] = p;
+				i++;
+			}
+			 
 		}
-		num = worst_fit_count_extfrag(4);
+		print_ll(WORST_FIT);
+		for(int k = 1; k<i+1; k++)
+		{
+			worst_fit_dealloc(ptr[k]);
+			printf("Deallocated %d\n", k);
+		}
+		print_ll(WORST_FIT);
+		//num = worst_fit_count_extfrag(4);
 	} else {
 		fprintf(stderr, "Should not reach here!\n");
 		exit(1);
